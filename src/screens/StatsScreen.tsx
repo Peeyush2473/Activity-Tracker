@@ -16,20 +16,27 @@ export default function StatsScreen() {
     const navigation = useNavigation();
     const [data, setData] = useState<number[]>([]);
     const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year'>('week');
+    const [selectedMonth, setSelectedMonth] = useState(new Date());
 
     // Update data when context changes or time range changes
     useEffect(() => {
         if (timeRange === 'week') {
             setData(getCompletionRate(7));
         } else if (timeRange === 'month') {
-            // Get current month data
+            // Get selected month data
+            const year = selectedMonth.getFullYear();
+            const month = selectedMonth.getMonth();
             const today = new Date();
-            const currentDay = today.getDate(); // Day of month (1-31)
+
+            // Determine how many days to show
+            const isCurrentMonth = year === today.getFullYear() && month === today.getMonth();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const daysToShow = isCurrentMonth ? today.getDate() : daysInMonth;
 
             // Get completion rates for days 1 to current day of this month
             const monthData: number[] = [];
-            for (let day = 1; day <= currentDay; day++) {
-                const date = new Date(today.getFullYear(), today.getMonth(), day);
+            for (let day = 1; day <= daysToShow; day++) {
+                const date = new Date(year, month, day);
                 const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
                 let completedCount = 0;
@@ -48,7 +55,7 @@ export default function StatsScreen() {
         } else {
             setData(getYearlyCompletionRate());
         }
-    }, [habits, timeRange]);
+    }, [habits, timeRange, selectedMonth]);
 
     const chartConfig = {
         backgroundGradientFrom: '#1C1C1E',
@@ -146,14 +153,46 @@ export default function StatsScreen() {
                         </TouchableOpacity>
                     </View>
 
-                    <Text style={styles.cardTitle}>
-                        {timeRange === 'week'
-                            ? 'Last 7 Days'
-                            : timeRange === 'month'
-                                ? new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+                    {timeRange === 'month' && (
+                        <View style={styles.monthNavigation}>
+                            <TouchableOpacity
+                                style={styles.monthNavButton}
+                                onPress={() => {
+                                    const newMonth = new Date(selectedMonth);
+                                    newMonth.setMonth(newMonth.getMonth() - 1);
+                                    setSelectedMonth(newMonth);
+                                }}
+                            >
+                                <Ionicons name="chevron-back" size={24} color={theme.primary} />
+                            </TouchableOpacity>
+                            <Text style={styles.monthNavText}>
+                                {selectedMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                            </Text>
+                            <TouchableOpacity
+                                style={styles.monthNavButton}
+                                onPress={() => {
+                                    const newMonth = new Date(selectedMonth);
+                                    newMonth.setMonth(newMonth.getMonth() + 1);
+                                    const today = new Date();
+                                    // Don't allow navigating to future months
+                                    if (newMonth <= today) {
+                                        setSelectedMonth(newMonth);
+                                    }
+                                }}
+                            >
+                                <Ionicons name="chevron-forward" size={24} color={theme.primary} />
+                            </TouchableOpacity>
+                        </View>
+                    )}
+
+                    {timeRange !== 'month' && (
+                        <Text style={styles.cardTitle}>
+                            {timeRange === 'week'
+                                ? 'Last 7 Days'
                                 : 'Last 12 Months'
-                        }
-                    </Text>
+                            }
+                        </Text>
+                    )}
                     {data.length > 0 ? (
                         timeRange === 'week' ? (
                             <LineChart
@@ -181,6 +220,7 @@ export default function StatsScreen() {
                                 completionRates={data}
                                 color={theme.primary}
                                 days={data.length}
+                                selectedMonth={selectedMonth}
                             />
                         ) : (
                             <BarChart
@@ -318,5 +358,25 @@ const styles = StyleSheet.create({
         color: '#8E8E93',
         fontSize: 16,
         marginVertical: 20,
+    },
+    monthNavigation: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 16,
+        paddingHorizontal: 20,
+    },
+    monthNavButton: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    monthNavText: {
+        fontSize: 18,
+        fontWeight: '600',
+        color: '#FFF',
     },
 });

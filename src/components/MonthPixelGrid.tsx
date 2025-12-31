@@ -5,9 +5,10 @@ interface MonthPixelGridProps {
     completionRates: number[]; // Array of completion rates (0-100) for each day
     color: string;
     days: number;
+    selectedMonth?: Date; // Optional: defaults to current month
 }
 
-export default function MonthPixelGrid({ completionRates, color, days }: MonthPixelGridProps) {
+export default function MonthPixelGrid({ completionRates, color, days, selectedMonth }: MonthPixelGridProps) {
     // Convert hex color to RGB for opacity calculation
     const hexToRgb = (hex: string) => {
         const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -20,10 +21,10 @@ export default function MonthPixelGrid({ completionRates, color, days }: MonthPi
 
     const rgb = hexToRgb(color);
 
-    // Get current month info
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = today.getMonth();
+    // Get month info from selectedMonth or current date
+    const monthDate = selectedMonth || new Date();
+    const year = monthDate.getFullYear();
+    const month = monthDate.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const firstDayOfMonth = new Date(year, month, 1).getDay(); // 0 = Sunday
 
@@ -77,7 +78,12 @@ export default function MonthPixelGrid({ completionRates, color, days }: MonthPi
                 <View key={weekIndex} style={styles.weekRow}>
                     {week.map((day, dayIndex) => {
                         if (day === null) {
-                            return <View key={dayIndex} style={styles.dayBox} />;
+                            return (
+                                <View
+                                    key={dayIndex}
+                                    style={[styles.dayBox, { backgroundColor: 'transparent' }]}
+                                />
+                            );
                         }
 
                         const isFuture = day > days;
@@ -137,7 +143,8 @@ const styles = StyleSheet.create({
         width: 30,
         height: 30,
         marginHorizontal: 3,
-        borderRadius: 6,
+        borderRadius: 8,
+        overflow: 'hidden',
         justifyContent: 'center',
         alignItems: 'center',
     },
