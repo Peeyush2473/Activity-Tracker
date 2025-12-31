@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 
 interface MonthPixelGridProps {
     completionRates: number[]; // Array of completion rates (0-100) for each day
@@ -25,9 +25,15 @@ export default function MonthPixelGrid({ completionRates, color, days }: MonthPi
     const year = today.getFullYear();
     const month = today.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDayOfMonth = new Date(year, month, 1).getDay(); // 0 = Sunday
 
-    // Create calendar grid - just the days without leading empty spaces
+    // Create calendar grid with proper weekday alignment
     const calendarDays: (number | null)[] = [];
+
+    // Add empty spaces for days before the 1st (to align with correct weekday)
+    for (let i = 0; i < firstDayOfMonth; i++) {
+        calendarDays.push(null);
+    }
 
     // Add actual days (1 to current day or end of month)
     for (let day = 1; day <= days; day++) {
@@ -45,7 +51,7 @@ export default function MonthPixelGrid({ completionRates, color, days }: MonthPi
         weeks.push(calendarDays.slice(i, i + 7));
     }
 
-    // Pad the last week with nulls if it's incomplete (this puts empty boxes at the end/bottom)
+    // Pad the last week with nulls if it's incomplete
     const lastWeek = weeks[weeks.length - 1];
     if (lastWeek && lastWeek.length < 7) {
         while (lastWeek.length < 7) {
@@ -53,8 +59,20 @@ export default function MonthPixelGrid({ completionRates, color, days }: MonthPi
         }
     }
 
+    const dayLabels = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+
     return (
         <View style={styles.container}>
+            {/* Day labels */}
+            <View style={styles.weekRow}>
+                {dayLabels.map((label, index) => (
+                    <View key={index} style={styles.dayLabelContainer}>
+                        <Text style={styles.dayLabel}>{label}</Text>
+                    </View>
+                ))}
+            </View>
+
+            {/* Calendar grid */}
             {weeks.map((week, weekIndex) => (
                 <View key={weekIndex} style={styles.weekRow}>
                     {week.map((day, dayIndex) => {
@@ -79,7 +97,11 @@ export default function MonthPixelGrid({ completionRates, color, days }: MonthPi
                             <View
                                 key={dayIndex}
                                 style={[styles.dayBox, { backgroundColor }]}
-                            />
+                            >
+                                <Text style={[styles.dateNumber, isFuture && styles.futureDateNumber]}>
+                                    {day}
+                                </Text>
+                            </View>
                         );
                     })}
                 </View>
@@ -99,10 +121,32 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         marginBottom: 6,
     },
+    dayLabelContainer: {
+        width: 30,
+        height: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginHorizontal: 3,
+    },
+    dayLabel: {
+        fontSize: 11,
+        fontWeight: '600',
+        color: '#666',
+    },
     dayBox: {
         width: 30,
         height: 30,
         marginHorizontal: 3,
         borderRadius: 6,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    dateNumber: {
+        fontSize: 11,
+        fontWeight: '700',
+        color: '#FFF',
+    },
+    futureDateNumber: {
+        color: '#555',
     },
 });
