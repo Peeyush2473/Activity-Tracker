@@ -1,111 +1,172 @@
 import React, { useState, useContext } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, TouchableWithoutFeedback, Keyboard, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { HabitContext } from '../context/HabitContext';
+import { ThemeContext } from '../context/ThemeContext';
 
-const COLORS = ['#6C63FF', '#FF6584', '#FFC75F', '#45B7D1', '#29C7AC'];
+const COLORS = ['#10B981', '#8B5CF6', '#EF4444', '#F59E0B', '#06B6D4'];
+const ICONS = ['🚶', '📚', '🍎', '🧘', '💧', '🏃', '✍️', '🎯', '💪', '🌱', '🎨', '🧠'];
 
 export default function AddHabitScreen() {
     const [name, setName] = useState('');
+    const [description, setDescription] = useState('');
+    const [selectedIcon, setSelectedIcon] = useState(ICONS[0]);
     const [selectedColor, setSelectedColor] = useState(COLORS[0]);
     const { addHabit } = useContext(HabitContext);
+    const { theme } = useContext(ThemeContext);
     const navigation = useNavigation();
 
     const handleSave = () => {
         if (name.trim()) {
-            addHabit(name, selectedColor);
+            addHabit(name, description, selectedIcon, selectedColor);
             navigation.goBack();
         }
     };
 
     return (
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={styles.container}
-            >
-                <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <Ionicons name="close" size={28} color="#333" />
-                    </TouchableOpacity>
-                    <Text style={styles.headerTitle}>New Habit</Text>
-                    <View style={{ width: 28 }} />
-                </View>
-
-                <View style={styles.content}>
-                    <Text style={styles.label}>What do you want to track?</Text>
-                    <TextInput
-                        style={styles.input}
-                        placeholder="e.g., Drink Water, Read a Book"
-                        value={name}
-                        onChangeText={setName}
-                        autoFocus
-                        maxLength={30}
-                    />
-
-                    <Text style={[styles.label, { marginTop: 30 }]}>Pick a color</Text>
-                    <View style={styles.colorsContainer}>
-                        {COLORS.map((color) => (
-                            <TouchableOpacity
-                                key={color}
-                                style={[
-                                    styles.colorCircle,
-                                    { backgroundColor: color },
-                                    selectedColor === color && styles.selectedColor
-                                ]}
-                                onPress={() => setSelectedColor(color)}
-                            >
-                                {selectedColor === color && <Ionicons name="checkmark" size={16} color="#FFF" />}
-                            </TouchableOpacity>
-                        ))}
+        <SafeAreaView style={styles.container}>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                    style={styles.flex}
+                >
+                    <View style={styles.header}>
+                        <TouchableOpacity onPress={() => navigation.goBack()}>
+                            <Ionicons name="close" size={28} color="#FFF" />
+                        </TouchableOpacity>
+                        <Text style={styles.headerTitle}>New Habit</Text>
+                        <View style={{ width: 28 }} />
                     </View>
 
-                    <TouchableOpacity
-                        style={[styles.saveButton, !name.trim() && styles.disabledButton]}
-                        onPress={handleSave}
-                        disabled={!name.trim()}
-                    >
-                        <Text style={styles.saveButtonText}>Create Habit</Text>
-                    </TouchableOpacity>
-                </View>
-            </KeyboardAvoidingView>
-        </TouchableWithoutFeedback>
+                    <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+                        <Text style={styles.label}>Habit Name</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="e.g., Walk around the block"
+                            placeholderTextColor="#666"
+                            value={name}
+                            onChangeText={setName}
+                            autoFocus
+                            maxLength={40}
+                        />
+
+                        <Text style={[styles.label, { marginTop: 24 }]}>Description (Optional)</Text>
+                        <TextInput
+                            style={styles.input}
+                            placeholder="e.g., Go for a short walk to clear the mind"
+                            placeholderTextColor="#666"
+                            value={description}
+                            onChangeText={setDescription}
+                            maxLength={60}
+                        />
+
+                        <Text style={[styles.label, { marginTop: 24 }]}>Pick an Icon</Text>
+                        <View style={styles.iconsContainer}>
+                            {ICONS.map((icon) => (
+                                <TouchableOpacity
+                                    key={icon}
+                                    style={[
+                                        styles.iconCircle,
+                                        selectedIcon === icon && styles.selectedIcon
+                                    ]}
+                                    onPress={() => setSelectedIcon(icon)}
+                                >
+                                    <Text style={styles.iconText}>{icon}</Text>
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+
+                        <Text style={[styles.label, { marginTop: 24 }]}>Pick a Color</Text>
+                        <View style={styles.colorsContainer}>
+                            {COLORS.map((color) => (
+                                <TouchableOpacity
+                                    key={color}
+                                    style={[
+                                        styles.colorCircle,
+                                        { backgroundColor: color },
+                                        selectedColor === color && styles.selectedColor
+                                    ]}
+                                    onPress={() => setSelectedColor(color)}
+                                >
+                                    {selectedColor === color && <Ionicons name="checkmark" size={20} color="#FFF" />}
+                                </TouchableOpacity>
+                            ))}
+                        </View>
+
+                        <TouchableOpacity
+                            style={[styles.saveButton, { backgroundColor: theme.primary }, !name.trim() && styles.disabledButton]}
+                            onPress={handleSave}
+                            disabled={!name.trim()}
+                        >
+                            <Text style={styles.saveButtonText}>Create Habit</Text>
+                        </TouchableOpacity>
+                    </ScrollView>
+                </KeyboardAvoidingView>
+            </TouchableWithoutFeedback>
+        </SafeAreaView>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#FFF',
+        backgroundColor: '#000000',
+    },
+    flex: {
+        flex: 1,
     },
     header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 20,
-        paddingTop: 20,
-        paddingBottom: 10,
+        paddingVertical: 15,
     },
     headerTitle: {
         fontSize: 18,
         fontWeight: '600',
+        color: '#FFF',
     },
     content: {
         flex: 1,
         padding: 24,
     },
     label: {
-        fontSize: 16,
-        color: '#666',
-        marginBottom: 10,
+        fontSize: 14,
+        color: '#8E8E93',
+        marginBottom: 12,
+        fontWeight: '500',
     },
     input: {
+        fontSize: 18,
+        borderBottomWidth: 1,
+        borderBottomColor: '#333',
+        paddingVertical: 12,
+        color: '#FFF',
+    },
+    iconsContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        gap: 12,
+    },
+    iconCircle: {
+        width: 50,
+        height: 50,
+        borderRadius: 25,
+        backgroundColor: '#1C1C1E',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2,
+        borderColor: 'transparent',
+    },
+    selectedIcon: {
+        borderColor: '#FFF',
+        backgroundColor: '#2C2C2E',
+    },
+    iconText: {
         fontSize: 24,
-        borderBottomWidth: 2,
-        borderBottomColor: '#EEE',
-        paddingVertical: 10,
-        color: '#333',
     },
     colorsContainer: {
         flexDirection: 'row',
@@ -113,27 +174,26 @@ const styles = StyleSheet.create({
         gap: 15,
     },
     colorCircle: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 50,
+        height: 50,
+        borderRadius: 25,
         justifyContent: 'center',
         alignItems: 'center',
     },
     selectedColor: {
         borderWidth: 3,
-        borderColor: '#E0E0E0',
-        // Usually you'd want a ring around it, but this is simple enough
+        borderColor: '#FFF',
         transform: [{ scale: 1.1 }],
     },
     saveButton: {
-        backgroundColor: '#6C63FF',
-        marginTop: 50,
+        marginTop: 40,
+        marginBottom: 40,
         paddingVertical: 16,
         borderRadius: 12,
         alignItems: 'center',
     },
     disabledButton: {
-        backgroundColor: '#CCC',
+        backgroundColor: '#333',
     },
     saveButtonText: {
         color: '#FFF',

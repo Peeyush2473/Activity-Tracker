@@ -4,16 +4,17 @@ import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { HabitContext } from '../context/HabitContext';
-
+import { ThemeContext } from '../context/ThemeContext';
+import PixelGrid from '../components/PixelGrid';
 import { getTodayKey } from '../utils/date';
 
 export default function HomeScreen() {
     const { habits, toggleHabit, deleteHabit } = useContext(HabitContext);
+    const { theme } = useContext(ThemeContext);
     const navigation = useNavigation<any>();
 
     const today = new Date();
     const dateKey = getTodayKey();
-    const dateDisplay = today.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
 
     const handleToggle = (id: string) => {
         toggleHabit(id, dateKey);
@@ -32,34 +33,64 @@ export default function HomeScreen() {
 
     const renderItem = ({ item }: { item: any }) => {
         const isCompleted = item.history[dateKey] || false;
+        const habitColor = item.color || '#6C63FF';
 
         return (
             <TouchableOpacity
-                style={[styles.card, isCompleted && styles.cardCompleted]}
-                onPress={() => handleToggle(item.id)}
+                style={styles.card}
                 onLongPress={() => handleDelete(item.id)}
+                activeOpacity={0.7}
             >
-                <View style={styles.textContainer}>
-                    <Text style={[styles.habitName, isCompleted && styles.textCompleted]}>{item.name}</Text>
+                <View style={styles.cardContent}>
+                    {/* Icon Section */}
+                    <View style={[styles.iconContainer, { backgroundColor: `${habitColor}20` }]}>
+                        <Text style={styles.icon}>{item.icon || '📝'}</Text>
+                    </View>
+
+                    {/* Text and Grid Section */}
+                    <View style={styles.textSection}>
+                        <Text style={styles.habitName}>{item.name}</Text>
+                        {item.description && (
+                            <Text style={styles.habitDescription}>{item.description}</Text>
+                        )}
+                        <PixelGrid history={item.history} color={habitColor} />
+                    </View>
+
+                    {/* Action Button */}
+                    <TouchableOpacity
+                        style={[
+                            styles.actionButton,
+                            { backgroundColor: isCompleted ? habitColor : `${habitColor}40` }
+                        ]}
+                        onPress={() => handleToggle(item.id)}
+                    >
+                        <Ionicons
+                            name={isCompleted ? "checkmark" : "add"}
+                            size={24}
+                            color="#FFF"
+                        />
+                    </TouchableOpacity>
                 </View>
-                <Ionicons
-                    name={isCompleted ? "checkbox" : "square-outline"}
-                    size={28}
-                    color={isCompleted ? (item.color || "#6C63FF") : "#888"}
-                />
             </TouchableOpacity>
         );
     };
 
     return (
         <SafeAreaView style={styles.container}>
+            {/* Header */}
             <View style={styles.header}>
-                <View>
-                    <Text style={styles.greeting}>Hello!</Text>
-                    <Text style={styles.date}>{dateDisplay}</Text>
-                </View>
-                <TouchableOpacity onPress={() => navigation.navigate('AddHabit')} style={styles.addButton}>
-                    <Ionicons name="add" size={24} color="#FFF" />
+                <TouchableOpacity
+                    style={styles.headerIcon}
+                    onPress={() => navigation.navigate('Settings')}
+                >
+                    <Ionicons name="settings-outline" size={24} color="#FFF" />
+                </TouchableOpacity>
+                <Text style={styles.headerTitle}>HabitKit</Text>
+                <TouchableOpacity
+                    style={styles.headerIcon}
+                    onPress={() => navigation.navigate('Stats')}
+                >
+                    <Ionicons name="stats-chart-outline" size={24} color="#FFF" />
                 </TouchableOpacity>
             </View>
 
@@ -74,6 +105,14 @@ export default function HomeScreen() {
                     </View>
                 }
             />
+
+            {/* Floating Action Button */}
+            <TouchableOpacity
+                style={[styles.fab, { backgroundColor: theme.primary }]}
+                onPress={() => navigation.navigate('AddHabit')}
+            >
+                <Ionicons name="add" size={28} color="#FFF" />
+            </TouchableOpacity>
         </SafeAreaView>
     );
 }
@@ -81,7 +120,7 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#F7F7F7',
+        backgroundColor: '#000000',
     },
     header: {
         paddingHorizontal: 20,
@@ -90,72 +129,92 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
     },
-    greeting: {
-        fontSize: 16,
-        color: '#888',
-        fontWeight: '600',
+    headerIcon: {
+        width: 40,
+        height: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
-    date: {
-        fontSize: 24,
+    headerTitle: {
+        fontSize: 20,
         fontWeight: 'bold',
-        color: '#333',
+        color: '#FFF',
+        letterSpacing: 0.5,
     },
-    addButton: {
-        backgroundColor: '#2947f0ff',
+    fab: {
+        position: 'absolute',
+        bottom: 24,
+        right: 24,
         width: 60,
         height: 60,
         borderRadius: 30,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: "#3150ffff",
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.3,
-        shadowRadius: 4.65,
+        shadowRadius: 8,
         elevation: 8,
     },
     listContent: {
         padding: 20,
+        paddingTop: 10,
     },
     card: {
-        backgroundColor: '#FFF',
-        padding: 20,
-        borderRadius: 16,
+        backgroundColor: '#1C1C1E',
+        borderRadius: 20,
+        marginBottom: 16,
+        overflow: 'hidden',
+    },
+    cardContent: {
         flexDirection: 'row',
+        padding: 16,
+        alignItems: 'flex-start',
+    },
+    iconContainer: {
+        width: 50,
+        height: 50,
+        borderRadius: 12,
+        justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 12,
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.05,
-        shadowRadius: 3.84,
-        elevation: 2,
+        marginRight: 12,
     },
-    cardCompleted: {
-        opacity: 0.8,
+    icon: {
+        fontSize: 28,
     },
-    textContainer: {
+    textSection: {
         flex: 1,
+        marginRight: 12,
     },
     habitName: {
-        fontSize: 18,
+        fontSize: 17,
         fontWeight: '600',
-        color: '#333',
+        color: '#FFF',
+        marginBottom: 4,
     },
-    textCompleted: {
-        textDecorationLine: 'line-through',
-        color: '#AAA',
+    habitDescription: {
+        fontSize: 14,
+        color: '#8E8E93',
+        marginBottom: 4,
+    },
+    actionButton: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 4,
     },
     emptyContainer: {
-        marginTop: 50,
+        marginTop: 100,
         alignItems: 'center',
     },
     emptyText: {
-        color: '#888',
+        color: '#8E8E93',
         fontSize: 16,
     },
 });
