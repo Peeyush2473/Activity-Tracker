@@ -165,9 +165,11 @@ export default function StatsScreen() {
                             >
                                 <Ionicons name="chevron-back" size={24} color={theme.primary} />
                             </TouchableOpacity>
-                            <Text style={styles.monthNavText}>
-                                {selectedMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-                            </Text>
+                            <View style={styles.monthNavTextContainer}>
+                                <Text style={styles.monthNavText}>
+                                    {selectedMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+                                </Text>
+                            </View>
                             <TouchableOpacity
                                 style={styles.monthNavButton}
                                 onPress={() => {
@@ -299,6 +301,7 @@ const styles = StyleSheet.create({
         padding: 16,
         marginBottom: 20,
         alignItems: 'center',
+        minHeight: 450,
     },
     cardTitle: {
         fontSize: 18,
@@ -374,9 +377,16 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
+    monthNavTextContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginHorizontal: 16,
+    },
     monthNavText: {
         fontSize: 18,
         fontWeight: '600',
         color: '#FFF',
+        textAlign: 'center',
     },
 });

@@ -95,7 +95,7 @@ export default function MonthPixelGrid({ completionRates, color, days, selectedM
                         } else if (completionRate === 0) {
                             backgroundColor = 'rgba(255, 255, 255, 0.15)';
                         } else {
-                            const opacity = 0.4 + (completionRate / 100) * 0.6;
+                            const opacity = 0.1 + (completionRate / 100) * 0.9;
                             backgroundColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity})`;
                         }
 
@@ -128,8 +128,8 @@ const styles = StyleSheet.create({
         marginBottom: 6,
     },
     dayLabelContainer: {
-        width: 30,
-        height: 20,
+        width: 35,
+        height: 35,
         justifyContent: 'center',
         alignItems: 'center',
         marginHorizontal: 3,
@@ -140,8 +140,8 @@ const styles = StyleSheet.create({
         color: '#666',
     },
     dayBox: {
-        width: 30,
-        height: 30,
+        width: 32,
+        height: 32,
         marginHorizontal: 3,
         borderRadius: 8,
         overflow: 'hidden',
