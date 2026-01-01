@@ -13,6 +13,12 @@ export default function CustomBarChart({ data, labels, color, maxValue = 100 }: 
     const chartHeight = 170;
     const spacing = 20;
 
+    const allMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const displayData = allMonths.map((month, index) => {
+        const dataIndex = labels.indexOf(month);
+        return dataIndex !== -1 ? data[dataIndex] : null;
+    });
+
     return (
         <View style={styles.container}>
             {/* Y-Axis Labels */}
@@ -40,7 +46,7 @@ export default function CustomBarChart({ data, labels, color, maxValue = 100 }: 
                                     styles.gridLine,
                                     {
                                         top: (chartHeight / 4) * index,
-                                        width: Math.max(data.length * (barWidth + spacing), 300)
+                                        width: Math.max(allMonths.length * (barWidth + spacing), 300)
                                     }
                                 ]}
                             />
@@ -48,30 +54,42 @@ export default function CustomBarChart({ data, labels, color, maxValue = 100 }: 
                     </View>
 
                     {/* Bars */}
-                    {data.map((value, index) => {
-                        const barContainerHeight = 200;
-                        const barHeight = (value / maxValue) * barContainerHeight;
+                    {displayData.map((value, index) => {
+                        const barContainerHeight = 170;
+                        const barHeight = value !== null ? (value / maxValue) * barContainerHeight : 0;
+                        const hasData = value !== null;
+
                         return (
                             <View key={index} style={styles.barWrapper}>
                                 <View style={styles.barContainer}>
-                                    {/* Value on top */}
-                                    <Text style={styles.valueText}>
-                                        {Math.round(value)}%
-                                    </Text>
-                                    {/* Bar */}
-                                    <View
-                                        style={[
-                                            styles.bar,
-                                            {
-                                                height: Math.max(barHeight, 2),
-                                                backgroundColor: color,
-                                                width: barWidth,
-                                            },
-                                        ]}
-                                    />
+                                    {/* Value on top - show above the bar */}
+                                    {hasData && (
+                                        <Text style={styles.valueText}>
+                                            {Math.round(value)}%
+                                        </Text>
+                                    )}
+
+                                    {/* Bar - height is exactly the percentage */}
+                                    {hasData ? (
+                                        <View
+                                            style={[
+                                                styles.bar,
+                                                {
+                                                    height: Math.max(barHeight, 2),
+                                                    backgroundColor: color,
+                                                    width: barWidth,
+                                                },
+                                            ]}
+                                        />
+                                    ) : (
+                                        <View style={{ height: 0 }} />
+                                    )}
                                 </View>
-                                {/* Label */}
-                                <Text style={styles.label}>{labels[index]}</Text>
+
+                                {/* Label - always show */}
+                                <Text style={[styles.label, !hasData && styles.labelInactive]}>
+                                    {allMonths[index]}
+                                </Text>
                             </View>
                         );
                     })}
@@ -89,7 +107,7 @@ const styles = StyleSheet.create({
     },
     yAxisContainer: {
         width: 40,
-        height: 220,
+        height: 225,
         justifyContent: 'space-between',
         paddingTop: 10,
         paddingBottom: 30,
@@ -107,9 +125,9 @@ const styles = StyleSheet.create({
     barsContainer: {
         flexDirection: 'row',
         alignItems: 'flex-end',
-        height: 220,
-        paddingBottom: 15,
-        position: 'relative',
+        height: 210,
+        paddingBottom: 5,
+        position: 'relative'
     },
     gridLinesContainer: {
         position: 'absolute',
@@ -129,7 +147,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 10,
     },
     barContainer: {
-        height: 200,
+        height: 170,
         justifyContent: 'flex-end',
         alignItems: 'center',
     },
@@ -148,5 +166,9 @@ const styles = StyleSheet.create({
         fontSize: 12,
         marginTop: 8,
         fontWeight: '500',
+    },
+    labelInactive: {
+        color: '#4A4A4A',
+        opacity: 0.5,
     },
 });
