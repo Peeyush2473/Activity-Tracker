@@ -1,30 +1,30 @@
 import React, { createContext, useState, useEffect, ReactNode } from 'react';
-import { Habit, HabitContextType } from '../types';
-import { loadHabits, saveHabits } from '../utils/storage';
+import { Activity, ActivityContextType } from '../types';
+import { loadActivities, saveActivities } from '../utils/storage';
 import { getDateKey } from '../utils/date';
 
-export const HabitContext = createContext<HabitContextType>({
-    habits: [],
-    addHabit: () => { },
-    deleteHabit: () => { },
-    toggleHabit: () => { },
+export const ActivityContext = createContext<ActivityContextType>({
+    activities: [],
+    addActivity: () => { },
+    deleteActivity: () => { },
+    toggleActivity: () => { },
     getCompletionRate: () => [],
     getYearlyCompletionRate: () => [],
 });
 
-export const HabitProvider = ({ children }: { children: ReactNode }) => {
-    const [habits, setHabits] = useState<Habit[]>([]);
+export const ActivityProvider = ({ children }: { children: ReactNode }) => {
+    const [activities, setActivities] = useState<Activity[]>([]);
 
     useEffect(() => {
         const init = async () => {
-            const loadedHabits = await loadHabits();
-            setHabits(loadedHabits);
+            const loadedActivities = await loadActivities();
+            setActivities(loadedActivities);
         };
         init();
     }, []);
 
-    const addHabit = (name: string, description?: string, icon?: string, color?: string) => {
-        const newHabit: Habit = {
+    const addActivity = (name: string, description?: string, icon?: string, color?: string) => {
+        const newActivity: Activity = {
             id: Date.now().toString(),
             name,
             description,
@@ -33,35 +33,35 @@ export const HabitProvider = ({ children }: { children: ReactNode }) => {
             createdAt: new Date().toISOString(),
             history: {},
         };
-        const updatedHabits = [...habits, newHabit];
-        setHabits(updatedHabits);
-        saveHabits(updatedHabits);
+        const updatedActivities = [...activities, newActivity];
+        setActivities(updatedActivities);
+        saveActivities(updatedActivities);
     };
 
-    const deleteHabit = (id: string) => {
-        const updatedHabits = habits.filter((h) => h.id !== id);
-        setHabits(updatedHabits);
-        saveHabits(updatedHabits);
+    const deleteActivity = (id: string) => {
+        const updatedActivities = activities.filter((h) => h.id !== id);
+        setActivities(updatedActivities);
+        saveActivities(updatedActivities);
     };
 
-    const toggleHabit = (id: string, date: string) => {
-        const updatedHabits = habits.map((habit) => {
-            if (habit.id === id) {
-                const isCompleted = !!habit.history[date];
-                const newHistory = { ...habit.history };
+    const toggleActivity = (id: string, date: string) => {
+        const updatedActivities = activities.map((activity) => {
+            if (activity.id === id) {
+                const isCompleted = !!activity.history[date];
+                const newHistory = { ...activity.history };
                 if (isCompleted) {
                     // Optional: delete key to save space if false, or just set to false
                     delete newHistory[date];
                 } else {
                     newHistory[date] = true;
                 }
-                return { ...habit, history: newHistory };
+                return { ...activity, history: newHistory };
             }
-            return habit;
+            return activity;
         });
 
-        setHabits(updatedHabits);
-        saveHabits(updatedHabits);
+        setActivities(updatedActivities);
+        saveActivities(updatedActivities);
     };
 
     const getCompletionRate = (days: number = 7): number[] => {
@@ -74,20 +74,20 @@ export const HabitProvider = ({ children }: { children: ReactNode }) => {
             const dateStr = getDateKey(d);
 
             let completedCount = 0;
-            let totalHabits = habits.length;
+            let totalActivities = activities.length;
 
-            // Filter out habits that didn't exist yet on that date?
-            // For simplicity, we assume all current habits are relevant to the denominator 
+            // Filter out activities that didn't exist yet on that date?
+            // For simplicity, we assume all current activities are relevant to the denominator 
             // or we only check created date.
-            // Let's stick to simple "Active Habits" count.
+            // Let's stick to simple "Active Activities" count.
 
-            habits.forEach(habit => {
-                if (habit.history[dateStr]) {
+            activities.forEach(activity => {
+                if (activity.history[dateStr]) {
                     completedCount++;
                 }
             });
 
-            rates.push(totalHabits > 0 ? (completedCount / totalHabits) * 100 : 0);
+            rates.push(totalActivities > 0 ? (completedCount / totalActivities) * 100 : 0);
         }
         return rates;
     };
@@ -115,10 +115,10 @@ export const HabitProvider = ({ children }: { children: ReactNode }) => {
                 // If date is in future, skip (optional, but good for accuracy)
                 if (new Date(dateStr) > today) continue;
 
-                totalPossibleCompletions += habits.length;
+                totalPossibleCompletions += activities.length;
 
-                habits.forEach(habit => {
-                    if (habit.history[dateStr]) {
+                activities.forEach(activity => {
+                    if (activity.history[dateStr]) {
                         totalActualCompletions++;
                     }
                 });
@@ -131,8 +131,8 @@ export const HabitProvider = ({ children }: { children: ReactNode }) => {
 
 
     return (
-        <HabitContext.Provider value={{ habits, addHabit, deleteHabit, toggleHabit, getCompletionRate, getYearlyCompletionRate }}>
+        <ActivityContext.Provider value={{ activities, addActivity, deleteActivity, toggleActivity, getCompletionRate, getYearlyCompletionRate }}>
             {children}
-        </HabitContext.Provider>
+        </ActivityContext.Provider>
     );
 };

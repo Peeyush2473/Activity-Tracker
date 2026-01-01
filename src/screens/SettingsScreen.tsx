@@ -3,19 +3,19 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'rea
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { HabitContext } from '../context/HabitContext';
+import { ActivityContext } from '../context/ActivityContext';
 import { ThemeContext, THEMES } from '../context/ThemeContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function SettingsScreen() {
     const navigation = useNavigation();
-    const { habits } = useContext(HabitContext);
+    const { activities } = useContext(ActivityContext);
     const { theme, setTheme } = useContext(ThemeContext);
 
     const handleClearAllData = () => {
         Alert.alert(
             "Clear All Data",
-            "Are you sure you want to delete all habits and history? This action cannot be undone.",
+            "Are you sure you want to delete all activity data and history? This action cannot be undone.",
             [
                 { text: "Cancel", style: "cancel" },
                 {
@@ -23,7 +23,7 @@ export default function SettingsScreen() {
                     style: "destructive",
                     onPress: async () => {
                         try {
-                            await AsyncStorage.removeItem('habits');
+                            await AsyncStorage.removeItem('@activities_v1');
                             Alert.alert("Success", "All data has been cleared. Please restart the app.");
                         } catch (error) {
                             Alert.alert("Error", "Failed to clear data");
@@ -37,7 +37,7 @@ export default function SettingsScreen() {
     const handleExportData = () => {
         Alert.alert(
             "Export Data",
-            `You have ${habits.length} habits. Export functionality will be available in a future update.`,
+            `You have ${activities.length} activities. Export functionality will be available in a future update.`,
             [{ text: "OK" }]
         );
     };
@@ -73,18 +73,18 @@ export default function SettingsScreen() {
                     <Text style={styles.sectionTitle}>APP INFO</Text>
                     <View style={styles.card}>
                         <View style={styles.appInfo}>
-                            <Text style={styles.appName}>HabitKit</Text>
+                            <Text style={styles.appName}>ActivityTracker</Text>
                             <Text style={styles.appVersion}>Version 1.0.0</Text>
                         </View>
                         <View style={styles.statsRow}>
                             <View style={styles.statItem}>
-                                <Text style={[styles.statValue, { color: theme.primary }]}>{habits.length}</Text>
-                                <Text style={styles.statLabel}>Active Habits</Text>
+                                <Text style={[styles.statValue, { color: theme.primary }]}>{activities.length}</Text>
+                                <Text style={styles.statLabel}>Active Activities</Text>
                             </View>
                             <View style={styles.statDivider} />
                             <View style={styles.statItem}>
                                 <Text style={[styles.statValue, { color: theme.primary }]}>
-                                    {habits.reduce((sum, h) => sum + Object.keys(h.history).length, 0)}
+                                    {activities.reduce((sum, h) => sum + Object.keys(h.history).length, 0)}
                                 </Text>
                                 <Text style={styles.statLabel}>Total Completions</Text>
                             </View>
@@ -132,14 +132,14 @@ export default function SettingsScreen() {
                         <SettingItem
                             icon="download-outline"
                             title="Export Data"
-                            subtitle="Backup your habits and history"
+                            subtitle="Backup your activities and history"
                             onPress={handleExportData}
                         />
                         <View style={styles.divider} />
                         <SettingItem
                             icon="trash-outline"
                             title="Clear All Data"
-                            subtitle="Delete all habits and history"
+                            subtitle="Delete all activities and history"
                             onPress={handleClearAllData}
                             danger
                         />
@@ -152,9 +152,9 @@ export default function SettingsScreen() {
                     <View style={styles.card}>
                         <SettingItem
                             icon="information-circle-outline"
-                            title="About HabitKit"
+                            title="About ActivityTracker"
                             subtitle="Learn more about this app"
-                            onPress={() => Alert.alert("HabitKit", "A simple and beautiful habit tracker to help you build better habits.")}
+                            onPress={() => Alert.alert("ActivityTracker", "A simple and beautiful activity tracker to help you build better habits.")}
                         />
                     </View>
                 </View>

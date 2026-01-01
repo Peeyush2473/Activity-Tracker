@@ -4,7 +4,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import HomeScreen from '../screens/HomeScreen';
 import StatsScreen from '../screens/StatsScreen';
-import AddHabitScreen from '../screens/AddHabitScreen';
+import AddActivityScreen from '../screens/AddActivityScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 
 const Stack = createNativeStackNavigator();
@@ -29,8 +29,8 @@ export default function AppNavigator() {
                     options={{ headerShown: false }}
                 />
                 <Stack.Screen
-                    name="AddHabit"
-                    component={AddHabitScreen}
+                    name="AddActivity"
+                    component={AddActivityScreen}
                     options={{ presentation: 'modal', headerShown: false }}
                 />
             </Stack.Navigator>

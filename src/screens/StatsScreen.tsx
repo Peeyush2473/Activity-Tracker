@@ -4,14 +4,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { LineChart, BarChart } from 'react-native-chart-kit';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import { HabitContext } from '../context/HabitContext';
+import { ActivityContext } from '../context/ActivityContext';
 import { ThemeContext } from '../context/ThemeContext';
 import MonthPixelGrid from '../components/MonthPixelGrid';
 
 const screenWidth = Dimensions.get('window').width;
 
 export default function StatsScreen() {
-    const { getCompletionRate, getYearlyCompletionRate, habits } = useContext(HabitContext);
+    const { getCompletionRate, getYearlyCompletionRate, activities } = useContext(ActivityContext);
     const { theme } = useContext(ThemeContext);
     const navigation = useNavigation();
     const [data, setData] = useState<number[]>([]);
@@ -40,22 +40,22 @@ export default function StatsScreen() {
                 const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
                 let completedCount = 0;
-                let totalHabits = habits.length;
+                let totalActivities = activities.length;
 
-                habits.forEach(habit => {
-                    if (habit.history[dateKey]) {
+                activities.forEach(activity => {
+                    if (activity.history[dateKey]) {
                         completedCount++;
                     }
                 });
 
-                monthData.push(totalHabits > 0 ? (completedCount / totalHabits) * 100 : 0);
+                monthData.push(totalActivities > 0 ? (completedCount / totalActivities) * 100 : 0);
             }
 
             setData(monthData);
         } else {
             setData(getYearlyCompletionRate());
         }
-    }, [habits, timeRange, selectedMonth]);
+    }, [activities, timeRange, selectedMonth]);
 
     const chartConfig = {
         backgroundGradientFrom: '#1C1C1E',
@@ -195,8 +195,8 @@ export default function StatsScreen() {
                             }
                         </Text>
                     )}
-                    {data.length > 0 ? (
-                        timeRange === 'week' ? (
+                    {timeRange === 'week' ? (
+                        data.length > 0 ? (
                             <LineChart
                                 data={{
                                     labels: getLabels(),
@@ -217,7 +217,11 @@ export default function StatsScreen() {
                                     borderRadius: 16,
                                 }}
                             />
-                        ) : timeRange === 'month' ? (
+                        ) : (
+                            <Text style={styles.noData}>No data yet. Start tracking activities to see your progress!</Text>
+                        )
+                    ) : timeRange === 'month' ? (
+                        data.length > 0 ? (
                             <MonthPixelGrid
                                 completionRates={data}
                                 color={theme.primary}
@@ -225,31 +229,77 @@ export default function StatsScreen() {
                                 selectedMonth={selectedMonth}
                             />
                         ) : (
-                            <BarChart
-                                data={{
-                                    labels: getLabels(),
-                                    datasets: [
-                                        {
-                                            data: data,
-                                        },
-                                    ],
-                                }}
-                                width={screenWidth - 40}
-                                height={220}
-                                yAxisSuffix="%"
-                                yAxisLabel=""
-                                chartConfig={{
-                                    ...chartConfig,
-                                    barPercentage: 0.6,
-                                }}
-                                style={{
-                                    marginVertical: 8,
-                                    borderRadius: 16,
-                                }}
-                            />
+                            <Text style={styles.noData}>No data yet. Start tracking activities to see your progress!</Text>
                         )
                     ) : (
-                        <Text style={styles.noData}>No data yet</Text>
+                        <View style={{ flexDirection: 'row', height: 260 }}>
+                            {/* Fixed Y-Axis - Always visible */}
+                            <View style={{ width: 35, height: 235, justifyContent: 'space-around', marginRight: 8 }}>
+                                {['100%', '75%', '50%', '25%', '0%'].map((label) => (
+                                    <Text key={label} style={{ color: '#8E8E93', fontSize: 12, textAlign: 'right' }}>
+                                        {label}
+                                    </Text>
+                                ))}
+                            </View>
+                            {/* Scrollable Chart or Empty State */}
+                            {data.length > 0 ? (
+                                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                                    <BarChart
+                                        data={{
+                                            labels: getLabels(),
+                                            datasets: [{ data }],
+                                        }}
+                                        width={Math.max(screenWidth - 80, data.length * 50)}
+                                        height={250}
+                                        fromZero
+                                        yAxisLabel=""
+                                        yAxisSuffix="%"
+                                        withInnerLines={true}
+                                        withHorizontalLabels={false}
+                                        chartConfig={{
+                                            backgroundGradientFrom: '#1C1C1E',
+                                            backgroundGradientTo: '#1C1C1E',
+                                            decimalPlaces: 0,
+
+                                            // Axis + label color
+                                            color: (opacity = 1) => {
+                                                const hex = theme.primary.replace('#', '');
+                                                const r = parseInt(hex.substring(0, 2), 16);
+                                                const g = parseInt(hex.substring(2, 4), 16);
+                                                const b = parseInt(hex.substring(4, 6), 16);
+                                                return `rgba(${r}, ${g}, ${b}, ${opacity})`;
+                                            },
+                                            labelColor: (opacity = 1) => `rgba(255,255,255,${opacity})`,
+
+                                            fillShadowGradientFrom: theme.primary,
+                                            fillShadowGradientTo: theme.primary,
+                                            fillShadowGradientFromOpacity: 1,
+                                            fillShadowGradientToOpacity: 1,
+
+                                            barPercentage: 0.6,
+
+                                            propsForBackgroundLines: {
+                                                stroke: '#444',
+                                                strokeDasharray: '5',
+                                                strokeWidth: 1,
+                                            },
+                                        }}
+                                        style={{
+                                            marginVertical: 8,
+                                            borderRadius: 16,
+                                            paddingRight: 40,
+                                        }}
+                                    />
+
+
+
+                                </ScrollView>
+                            ) : (
+                                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                                    <Text style={styles.noData}>No data yet. Start tracking activities!</Text>
+                                </View>
+                            )}
+                        </View>
                     )}
                 </View>
 
@@ -259,8 +309,8 @@ export default function StatsScreen() {
                         <Text style={styles.statLabel}>Consistency</Text>
                     </View>
                     <View style={styles.statCard}>
-                        <Text style={[styles.statValue, { color: theme.primary }]}>{habits.length}</Text>
-                        <Text style={styles.statLabel}>Active Habits</Text>
+                        <Text style={[styles.statValue, { color: theme.primary }]}>{activities.length}</Text>
+                        <Text style={styles.statLabel}>Active Activities</Text>
                     </View>
                 </View>
             </ScrollView>

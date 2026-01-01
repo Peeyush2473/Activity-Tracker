@@ -1,4 +1,4 @@
-export interface Habit {
+export interface Activity {
   id: string;
   name: string;
   description?: string;
@@ -10,11 +10,11 @@ export interface Habit {
   };
 }
 
-export interface HabitContextType {
-  habits: Habit[];
-  addHabit: (name: string, description?: string, icon?: string, color?: string) => void;
-  deleteHabit: (id: string) => void;
-  toggleHabit: (id: string, date: string) => void;
+export interface ActivityContextType {
+  activities: Activity[];
+  addActivity: (name: string, description?: string, icon?: string, color?: string) => void;
+  deleteActivity: (id: string) => void;
+  toggleActivity: (id: string, date: string) => void;
   getCompletionRate: (days?: number) => number[];
   getYearlyCompletionRate: () => number[];
 }

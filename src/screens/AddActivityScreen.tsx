@@ -3,24 +3,24 @@ import { View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingVi
 import { useNavigation } from '@react-navigation/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { HabitContext } from '../context/HabitContext';
+import { ActivityContext } from '../context/ActivityContext';
 import { ThemeContext } from '../context/ThemeContext';
 
 const COLORS = ['#10B981', '#8B5CF6', '#EF4444', '#F59E0B', '#06B6D4'];
 const ICONS = ['🚶', '📚', '🍎', '🧘', '💧', '🏃', '✍️', '🎯', '💪', '🌱', '🎨', '🧠'];
 
-export default function AddHabitScreen() {
+export default function AddActivityScreen() {
     const [name, setName] = useState('');
     const [description, setDescription] = useState('');
     const [selectedIcon, setSelectedIcon] = useState(ICONS[0]);
     const [selectedColor, setSelectedColor] = useState(COLORS[0]);
-    const { addHabit } = useContext(HabitContext);
+    const { addActivity } = useContext(ActivityContext);
     const { theme } = useContext(ThemeContext);
     const navigation = useNavigation();
 
     const handleSave = () => {
         if (name.trim()) {
-            addHabit(name, description, selectedIcon, selectedColor);
+            addActivity(name, description, selectedIcon, selectedColor);
             navigation.goBack();
         }
     };
@@ -36,12 +36,12 @@ export default function AddHabitScreen() {
                         <TouchableOpacity onPress={() => navigation.goBack()}>
                             <Ionicons name="close" size={28} color="#FFF" />
                         </TouchableOpacity>
-                        <Text style={styles.headerTitle}>New Habit</Text>
+                        <Text style={styles.headerTitle}>New Activity</Text>
                         <View style={{ width: 28 }} />
                     </View>
 
                     <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-                        <Text style={styles.label}>Habit Name</Text>
+                        <Text style={styles.label}>Activity Name</Text>
                         <TextInput
                             style={styles.input}
                             placeholder="e.g., Walk around the block"
@@ -100,7 +100,7 @@ export default function AddHabitScreen() {
                             onPress={handleSave}
                             disabled={!name.trim()}
                         >
-                            <Text style={styles.saveButtonText}>Create Habit</Text>
+                            <Text style={styles.saveButtonText}>Create Activity</Text>
                         </TouchableOpacity>
                     </ScrollView>
                 </KeyboardAvoidingView>

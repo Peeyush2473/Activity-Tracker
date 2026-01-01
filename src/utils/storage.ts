@@ -1,22 +1,22 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Habit } from '../types';
+import { Activity } from '../types';
 
-const HABITS_KEY = '@habits_v2'; // Changed key to avoid conflicts with old data structure
+const ACTIVITIES_KEY = '@activities_v1';
 
-export const saveHabits = async (habits: Habit[]) => {
+export const saveActivities = async (activities: Activity[]) => {
     try {
-        await AsyncStorage.setItem(HABITS_KEY, JSON.stringify(habits));
+        await AsyncStorage.setItem(ACTIVITIES_KEY, JSON.stringify(activities));
     } catch (e) {
-        console.error('Failed to save habits', e);
+        console.error('Failed to save activities', e);
     }
 };
 
-export const loadHabits = async (): Promise<Habit[]> => {
+export const loadActivities = async (): Promise<Activity[]> => {
     try {
-        const jsonValue = await AsyncStorage.getItem(HABITS_KEY);
+        const jsonValue = await AsyncStorage.getItem(ACTIVITIES_KEY);
         return jsonValue != null ? JSON.parse(jsonValue) : [];
     } catch (e) {
-        console.error('Failed to load habits', e);
+        console.error('Failed to load activities', e);
         return [];
     }
 };
