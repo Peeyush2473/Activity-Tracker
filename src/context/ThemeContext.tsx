@@ -7,14 +7,16 @@ export interface Theme {
 }
 
 export const THEMES: Theme[] = [
-    { name: 'Green', primary: '#10B981' },
-    { name: 'Purple', primary: '#8B5CF6' },
-    { name: 'Blue', primary: '#3B82F6' },
-    { name: 'Red', primary: '#EF4444' },
-    { name: 'Orange', primary: '#F59E0B' },
-    { name: 'Pink', primary: '#EC4899' },
-    { name: 'Cyan', primary: '#06B6D4' },
-    { name: 'Indigo', primary: '#6366F1' },
+    { name: 'Green', primary: '#10B981' },      // Emerald
+    { name: 'Purple', primary: '#A855F7' },     // Brighter Purple
+    { name: 'Blue', primary: '#3B82F6' },       // Blue
+    { name: 'Red', primary: '#EF4444' },        // Red
+    { name: 'Orange', primary: '#F97316' },     // Vibrant Orange
+    { name: 'Pink', primary: '#EC4899' },       // Hot Pink
+    { name: 'Cyan', primary: '#06B6D4' },       // Cyan
+    { name: 'Indigo', primary: '#6366F1' },     // Indigo
+    { name: 'Teal', primary: '#14B8A6' },       // Teal (NEW)
+    { name: 'Amber', primary: '#F59E0B' },      // Amber (NEW)
 ];
 
 interface ThemeContextType {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, DefaultTheme, DarkTheme } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import HomeScreen from '../screens/HomeScreen';
@@ -9,10 +9,32 @@ import SettingsScreen from '../screens/SettingsScreen';
 
 const Stack = createNativeStackNavigator();
 
+// Custom dark theme to prevent white flash
+const CustomDarkTheme = {
+    ...DarkTheme,
+    colors: {
+        ...DarkTheme.colors,
+        primary: '#10B981',
+        background: '#000000',
+        card: '#1C1C1E',
+        text: '#FFFFFF',
+        border: '#2C2C2E',
+        notification: '#10B981',
+    },
+};
+
 export default function AppNavigator() {
     return (
-        <NavigationContainer>
-            <Stack.Navigator>
+        <NavigationContainer theme={CustomDarkTheme}>
+            <Stack.Navigator
+                screenOptions={{
+                    contentStyle: { backgroundColor: '#000000' },
+                    headerShown: false,
+                    gestureEnabled: true,
+                    fullScreenGestureEnabled: true,
+                    animation: 'simple_push',
+                }}
+            >
                 <Stack.Screen
                     name="Home"
                     component={HomeScreen}
@@ -31,7 +53,10 @@ export default function AppNavigator() {
                 <Stack.Screen
                     name="AddActivity"
                     component={AddActivityScreen}
-                    options={{ presentation: 'modal', headerShown: false }}
+                    options={{
+                        presentation: 'modal',
+                        headerShown: false,
+                    }}
                 />
             </Stack.Navigator>
         </NavigationContainer>

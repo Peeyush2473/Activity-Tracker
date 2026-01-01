@@ -305,11 +305,13 @@ const styles = StyleSheet.create({
     colorGrid: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        gap: 16,
+        marginHorizontal: -8,
     },
     colorOption: {
         alignItems: 'center',
-        width: 70,
+        width: '20%', // 5 items per row
+        paddingHorizontal: 8,
+        marginBottom: 16,
     },
     colorCircle: {
         width: 50,

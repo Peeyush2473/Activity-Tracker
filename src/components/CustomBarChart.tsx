@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'flex-end',
         height: 210,
-        paddingBottom: 5,
+        paddingBottom: 0,
         position: 'relative'
     },
     gridLinesContainer: {
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 10,
     },
     barContainer: {
-        height: 170,
+        height: 200,
         justifyContent: 'flex-end',
         alignItems: 'center',
     },

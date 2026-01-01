@@ -44,7 +44,7 @@ export default function AddActivityScreen() {
                         <Text style={styles.label}>Activity Name</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder="e.g., Walk around the block"
+                            placeholder="e.g., Walk around the block."
                             placeholderTextColor="#666"
                             value={name}
                             onChangeText={setName}
@@ -55,7 +55,7 @@ export default function AddActivityScreen() {
                         <Text style={[styles.label, { marginTop: 24 }]}>Description (Optional)</Text>
                         <TextInput
                             style={styles.input}
-                            placeholder="e.g., Go for a short walk to clear the mind"
+                            placeholder="e.g., Go for a short walk."
                             placeholderTextColor="#666"
                             value={description}
                             onChangeText={setDescription}

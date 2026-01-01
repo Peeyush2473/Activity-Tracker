@@ -95,7 +95,7 @@ export default function MonthPixelGrid({ completionRates, color, days, selectedM
                         } else if (completionRate === 0) {
                             backgroundColor = 'rgba(255, 255, 255, 0.15)';
                         } else {
-                            const opacity = 0.1 + (completionRate / 100) * 0.9;
+                            const opacity = 0.2 + (completionRate / 100) * 0.8;
                             backgroundColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${opacity})`;
                         }
 
