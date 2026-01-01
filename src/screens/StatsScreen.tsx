@@ -1,12 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Dimensions, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LineChart, BarChart } from 'react-native-chart-kit';
+import { LineChart } from 'react-native-chart-kit';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { ActivityContext } from '../context/ActivityContext';
 import { ThemeContext } from '../context/ThemeContext';
 import MonthPixelGrid from '../components/MonthPixelGrid';
+import CustomBarChart from '../components/CustomBarChart';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -75,10 +76,8 @@ export default function StatsScreen() {
             strokeWidth: timeRange === 'month' ? '1' : '2',
             stroke: theme.primary,
         },
-        fillShadowGradientFrom: theme.primary,
-        fillShadowGradientTo: theme.primary,
-        fillShadowGradientFromOpacity: 0.3,
-        fillShadowGradientToOpacity: 0,
+        fillShadowGradient: theme.primary,
+        fillShadowGradientOpacity: 1,
     };
 
     const getLabels = () => {
@@ -109,11 +108,13 @@ export default function StatsScreen() {
                 }
             }
         } else {
-            const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            for (let i = 11; i >= 0; i--) {
-                const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
-                labels.push(months[d.getMonth()]);
+            // Year view - generate labels based on data length
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            // Return labels for months 0 to (data.length - 1)
+            for (let i = 0; i < data.length; i++) {
+                labels.push(monthNames[i]);
             }
+            return labels;
         }
         return labels;
     };
@@ -191,7 +192,7 @@ export default function StatsScreen() {
                         <Text style={styles.cardTitle}>
                             {timeRange === 'week'
                                 ? 'Last 7 Days'
-                                : 'Last 12 Months'
+                                : `Year ${new Date().getFullYear()}`
                             }
                         </Text>
                     )}
@@ -232,74 +233,18 @@ export default function StatsScreen() {
                             <Text style={styles.noData}>No data yet. Start tracking activities to see your progress!</Text>
                         )
                     ) : (
-                        <View style={{ flexDirection: 'row', height: 260 }}>
-                            {/* Fixed Y-Axis - Always visible */}
-                            <View style={{ width: 35, height: 235, justifyContent: 'space-around', marginRight: 8 }}>
-                                {['100%', '75%', '50%', '25%', '0%'].map((label) => (
-                                    <Text key={label} style={{ color: '#8E8E93', fontSize: 12, textAlign: 'right' }}>
-                                        {label}
-                                    </Text>
-                                ))}
+                        data.length > 0 ? (
+                            <CustomBarChart
+                                data={data}
+                                labels={getLabels()}
+                                color={theme.primary}
+                                maxValue={100}
+                            />
+                        ) : (
+                            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', height: 260 }}>
+                                <Text style={styles.noData}>No data yet. Start tracking activities!</Text>
                             </View>
-                            {/* Scrollable Chart or Empty State */}
-                            {data.length > 0 ? (
-                                <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                                    <BarChart
-                                        data={{
-                                            labels: getLabels(),
-                                            datasets: [{ data }],
-                                        }}
-                                        width={Math.max(screenWidth - 80, data.length * 50)}
-                                        height={250}
-                                        fromZero
-                                        yAxisLabel=""
-                                        yAxisSuffix="%"
-                                        withInnerLines={true}
-                                        withHorizontalLabels={false}
-                                        chartConfig={{
-                                            backgroundGradientFrom: '#1C1C1E',
-                                            backgroundGradientTo: '#1C1C1E',
-                                            decimalPlaces: 0,
-
-                                            // Axis + label color
-                                            color: (opacity = 1) => {
-                                                const hex = theme.primary.replace('#', '');
-                                                const r = parseInt(hex.substring(0, 2), 16);
-                                                const g = parseInt(hex.substring(2, 4), 16);
-                                                const b = parseInt(hex.substring(4, 6), 16);
-                                                return `rgba(${r}, ${g}, ${b}, ${opacity})`;
-                                            },
-                                            labelColor: (opacity = 1) => `rgba(255,255,255,${opacity})`,
-
-                                            fillShadowGradientFrom: theme.primary,
-                                            fillShadowGradientTo: theme.primary,
-                                            fillShadowGradientFromOpacity: 1,
-                                            fillShadowGradientToOpacity: 1,
-
-                                            barPercentage: 0.6,
-
-                                            propsForBackgroundLines: {
-                                                stroke: '#444',
-                                                strokeDasharray: '5',
-                                                strokeWidth: 1,
-                                            },
-                                        }}
-                                        style={{
-                                            marginVertical: 8,
-                                            borderRadius: 16,
-                                            paddingRight: 40,
-                                        }}
-                                    />
-
-
-
-                                </ScrollView>
-                            ) : (
-                                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                                    <Text style={styles.noData}>No data yet. Start tracking activities!</Text>
-                                </View>
-                            )}
-                        </View>
+                        )
                     )}
                 </View>
 

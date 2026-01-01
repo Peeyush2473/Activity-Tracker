@@ -16,5 +16,5 @@ export interface ActivityContextType {
   deleteActivity: (id: string) => void;
   toggleActivity: (id: string, date: string) => void;
   getCompletionRate: (days?: number) => number[];
-  getYearlyCompletionRate: () => number[];
+  getYearlyCompletionRate: (year?: number) => number[];
 }

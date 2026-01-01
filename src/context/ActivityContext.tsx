@@ -92,14 +92,19 @@ export const ActivityProvider = ({ children }: { children: ReactNode }) => {
         return rates;
     };
 
-    const getYearlyCompletionRate = (): number[] => {
+    const getYearlyCompletionRate = (year: number = new Date().getFullYear()): number[] => {
         const rates: number[] = [];
         const today = new Date();
+        const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth();
 
-        // Last 12 months including current month
-        for (let i = 11; i >= 0; i--) {
-            const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
-            const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+        // For current year, only show months up to current month
+        // For past years, show all 12 months
+        const maxMonth = (year === currentYear) ? currentMonth : 11;
+
+        // Iterate from January (0) to maxMonth
+        for (let monthIndex = 0; monthIndex <= maxMonth; monthIndex++) {
+            const d = new Date(year, monthIndex, 1);
 
             // Get number of days in this month
             const daysInMonth = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();
@@ -112,7 +117,8 @@ export const ActivityProvider = ({ children }: { children: ReactNode }) => {
                 // Build date string YYYY-MM-DD
                 const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
 
-                // If date is in future, skip (optional, but good for accuracy)
+                // If date is in future, do not count it as "possible" or "actual"?
+                // For a past year, all days are valid. For current year, only up to today.
                 if (new Date(dateStr) > today) continue;
 
                 totalPossibleCompletions += activities.length;
